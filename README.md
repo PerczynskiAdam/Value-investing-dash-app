@@ -13,6 +13,14 @@ https://gpw-value-app.herokuapp.com/
 *  Dash-bootstrap-components - version 0.10.0
 *  Dash-table - version 4.6.2
 *  Python - version 3.8.2
+  * Beatiful Soap 4
+  * Request
+  * Plotly
+  * Pandas
+  * Numpy
+  * Re
+  * Glob
+  * Functools (reduce)
 *  CSS/HTML
 
 # Setup
