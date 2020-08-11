@@ -1,34 +1,21 @@
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State, MATCH
 import plotly.graph_objs as go
 
-import sqlite3
 import numpy as np
 import pandas as pd
 import re
-from threading import Lock
 
 #import data
+df = pd.read_csv('https://raw.githubusercontent.com/PerczynskiAdam/Value-investing-dash-app/master/Indi_db/truncated_db.csv', index_col = 0, encoding = 'utf_8_sig')
 
-conn = sqlite3.connect(r'C:\Users\AdamPer\Desktop\Python\Dash\stocks.db', check_same_thread=False)
-c = conn.cursor()
-lock = Lock()
+df_map = pd.read_csv('https://raw.githubusercontent.com/PerczynskiAdam/Value-investing-dash-app/master/Macro_db/Eu_iso_gdp.csv', index_col  = 0, encoding = 'utf_8_sig')
 
-query = ("SELECT distinct(Ticker) FROM indis")
-df = pd.read_sql(query, conn)
-
-
-def get_indi_opt():
-   try:
-      lock.acquire(True)
-      data = c.execute('Select * FROM indis')
-      options = [description[0] for description in data.description] 
-      return options[2:]
-   finally:
-      lock.release()
+df_ind = pd.read_csv('https://raw.githubusercontent.com/PerczynskiAdam/Value-investing-dash-app/master/Macro_db/trun_index_data.csv', index_col = 0, encoding = 'utf_8_sig')
 
 sector_dict = {'GPW Informatyka': ['11B', 'ABS', 'ACP', 'ALL', 'ART', 'ASE', 'ATD', 'BBT', 'BCM',
        'CDR', 'CIG', 'CMP', 'CMR', 'CTG', 'DAT', 'DTR', 'ELZ', 'GOP',
@@ -44,9 +31,12 @@ scopes = ["world", "europe", "asia", "africa", "north america", "south america"]
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+server = app.server
+
+
 app.layout = html.Div([
    dcc.Tabs(children = [
-      dcc.Tab(label = 'Macroeconomics', children = [
+      dcc.Tab(label = 'Makro', children = [
          html.Div([
             dbc.Row([
                dbc.Col(
@@ -61,7 +51,7 @@ app.layout = html.Div([
                'background-color': '#58595B',
                'margin-top': '0.5rem',
                'margin-bottom': '0.5rem'
-               }
+            }
             ),
             dbc.Row([
                dbc.Col(
@@ -74,7 +64,7 @@ app.layout = html.Div([
                      dcc.Graph(
                         id = 'map-chart',
                         style = {'height': '865px'}
-                     )
+                        )
                   ]), width = 6
                ),
                dbc.Col(
@@ -109,6 +99,53 @@ app.layout = html.Div([
             dbc.Row([
                dbc.Col(
                   html.H2(
+                     children = "Tabela danych",
+                     style = {
+                        'margin-left': '1rem'
+                     }
+                  )
+               )
+            ],
+            style = {
+               'background-color': '#58595B',
+               'margin-top': '0.5rem',
+               'margin-bottom': '0.5rem'
+            }
+            ),
+            dbc.Row(
+               dbc.Col(
+                  dcc.Dropdown(
+                     id = "table-date",
+                     options = [{'label': i, 'value': i} for i in df.index.unique()],
+                     value = "2019-12-31",
+                     style ={
+                        'margin': '0.5rem',
+                        'width': '10rem'
+                     }
+                  )
+               )
+            ),
+            dbc.Row(
+               dbc.Col(
+                  dash_table.DataTable(
+                     style_header={
+                        'height': 'auto',
+                     },
+                     id = 'table',
+                     columns = [{"name": i, "id": i} for i in df.columns],
+                     page_size = 10,
+                     filter_action = "native",
+                     sort_action="native",
+                  ),
+                  width = {"size": 8, "offset": 2},
+                  style ={
+                     'margin-left': '2rem',
+                  }
+               )
+            ),
+            dbc.Row([
+               dbc.Col(
+                  html.H2(
                      children = 'Branża:',
                      style = {
                         'margin-left': '1rem'
@@ -126,14 +163,14 @@ app.layout = html.Div([
                'background-color': '#58595B',
                'margin-top': '0.5rem',
                'margin-bottom': '0.5rem'
-               }
+            }
             ),
             dbc.Row(
                dbc.Col(
                   dcc.Dropdown(
                      id = 'dynamic-indi',
-                     options = [{'label': i, 'value':i} for i in get_indi_opt()],
-                     value = ['Cena / Wartość księgowa', 'Cena / Zysk', 'ROE', 'Marża zysku operacyjnego', 'Zadłużenie ogólne'],
+                     options = [{'label': i, 'value':i} for i in df.columns[1:]],
+                     value = ['Cena / Zysk', 'ROE'],
                      multi = True,
                      style = {
                         'margin-left': '0.5rem'
@@ -175,7 +212,7 @@ app.layout = html.Div([
                'background-color': '#58595B',
                'margin-top': '0.5rem',
                'margin-bottom': '0.5rem'
-               }
+            }
             ),
             dbc.Row([
                dbc.Col(
@@ -202,21 +239,19 @@ app.layout = html.Div([
          'border-right': '1px solid #F1F2F2',
          'border-top': '1px solid #F1F2F2'
          }
-      )
+      )#Style for selected tab (not content of the tab)
    ], style = {'borderBottom': '1px solid #d6d6d6', 'fontWeight': 'bold'})#Style of all Tabs
 ])
 
 ############################## Content of Tab-1
 #Map chart
 def create_map(scope):
-   query = 'SELECT Country, "2019", Code FROM maps'
-   df_map = pd.read_sql(query, conn, index_col = 'Country')
    fig = go.Figure()
    fig.add_trace(go.Choropleth(
       locations = df_map['Code'],
       z = df_map[df_map.columns[-2]].astype(float),
       text = df_map.index,
-      colorbar_title = 'GDP<br>Billions US$'
+      colorbar_title = dict(text = 'Thousands<br>US$')
    ))
    fig.update_layout(
       geo = dict(
@@ -224,7 +259,7 @@ def create_map(scope):
          projection_type = 'natural earth',
          bgcolor = '#939598'
       ),
-      title = dict(text = '{} GDP'.format(scope.capitalize())),
+      title = dict(text = '{}<br>GDP per capita'.format(scope.capitalize())),
       margin = dict(
          t = 45,
          r = 35,
@@ -243,45 +278,34 @@ def create_map(scope):
 def update_scope(scope):
    return create_map(scope)
 
-   # data = c.execute("SELECT * FROM maps WHERE Country =?", (country,))
-   # names = [description[0] for description in c.description]
-   # df_map1 = pd.DataFrame(g(data), columns = names)
-   # df_map1 = df_map.set_index('Country', drop = True)
 #Gdp line chart
 def create_pkb_linechart(country):
-   try:
-      lock.acquire(True)
-      data = c.execute("SELECT * FROM maps WHERE Country =?", (country,))
-      names = [description[0] for description in c.description]
-      df_map = pd.DataFrame(data, columns = names).set_index('Country', drop = True)
-      if country not in df_map.index.unique():
-         return {}
-      else:
-         fig = go.Figure()
-         fig.add_trace(go.Scatter(
-            x = df_map.columns,
-            y = list(df_map[df_map.index == country].iloc[0])[:-1],
-            marker_color = '#FF851B'#Color of line
-         ))
-         fig.update_layout(title = 'GDP {}'.format(country),
-         xaxis = dict(
-            showgrid = False,
-            ticks = 'inside',
-            tickwidth = 2,
-            tickangle = 45,
-            tickfont = dict(
-               size = 14
-            )
-         ),
-         yaxis = dict(
-            title_text = 'GDP'
-         ),
-         paper_bgcolor = '#F2F8FD',
-         plot_bgcolor = '#F2F4F6'
+   if country not in df_map.index.unique():
+      return {}
+   else:
+      fig = go.Figure()
+      fig.add_trace(go.Scatter(
+         x = df_map.columns,
+         y = list(df_map[df_map.index == country].iloc[0])[:-1],
+         marker_color = '#FF851B'#Color of line
+      ))
+      fig.update_layout(title = '{}<br>GDP per capita'.format(country),
+      xaxis = dict(
+         showgrid = False,
+         ticks = 'inside',
+         tickwidth = 2,
+         tickangle = 45,
+         tickfont = dict(
+            size = 14
          )
+      ),
+      yaxis = dict(
+         title_text = 'GDP'
+      ),
+      paper_bgcolor = '#F2F8FD',
+      plot_bgcolor = '#F2F4F6'
+      )
       return fig
-   finally:
-      lock.release()
 
 @app.callback(
    Output('pkb-line-chart', 'figure'),
@@ -297,21 +321,16 @@ def update_pkb_line_chart(clickData):
 
 # Stock market index line chart
 def create_ind_linechart(country):
-   try:
-      lock.acquire(True)
-      data = c.execute("SELECT * FROM indexes WHERE Country =?", (country,))
-      names = [description[0] for description in c.description]
-      df_ind = pd.DataFrame(data, columns = names).set_index('Data', drop = True).sort_index()
       if country not in df_ind['Country'].unique():
          return {}
       else:
-         indeks = str(df_ind['Ind'].unique()).split('^')[1].split('_')[0]
+         filtered_df = df_ind[df_ind['Country'] == country]
+         indeks = str(filtered_df['Ind'].unique()).split('^')[1].split('_')[0]
          fig = go.Figure()
          fig.add_trace(go.Scatter(
-            x = df_ind.index,
-            y = df_ind['Zamkniecie'],
-            marker_color = '#FF851B',
-            mode = 'lines'
+            x = filtered_df.index,
+            y = filtered_df['Zamkniecie'],
+            marker_color = '#FF851B'#Color of line
          ))
          fig.update_layout(title = '{}<br>Index: {}'.format(country, indeks.capitalize()),
          xaxis = dict(
@@ -327,8 +346,6 @@ def create_ind_linechart(country):
          plot_bgcolor = '#F2F4F6'
          )
          return fig
-   finally:
-      lock.release()
 
 @app.callback(
    Output('index-line-chart', 'figure'),
@@ -346,54 +363,46 @@ def update_ind_line_chart(clickData):
 #Branza tab
 #function creating fig in branza tab
 def create_fig(indi, sect):
-   lock.acquire(True)
-   query = 'SELECT * FROM indis'
-   df = pd.read_sql(query, conn, index_col = 'Data')
-   try:
-      filtered_df = df[df['Ticker'].isin(sector_dict[sect])]
-      grouped_df = filtered_df.groupby('Ticker').tail(1)[['Ticker', '{}'.format(indi)]].dropna()#choose the latest data depends of indicator and drop rows with nan value
-      grouped_df = grouped_df.sort_values('{}'.format(indi))
-      grouped_df.loc[:,'Średnia'] = grouped_df['{}'.format(indi)].mean()
-      trace_bar = go.Bar(
-         x = grouped_df['Ticker'],
-         y = grouped_df['{}'.format(indi)],
-         hovertext = grouped_df.index,#That show date of used data to plot bar
-         showlegend = False,
-         marker_color = '#FF851B'#Color of Bars
-      )
-      trace_line = go.Scatter(
-         x = grouped_df['Ticker'],
-         y = grouped_df['Średnia'],
-         mode = 'lines',
-         name = 'Średnia',
-         line = dict(color = '#111111', width = 3)
-      )
-      layout = dict(
-         title = "{}".format(indi),
-         legend = dict(
-            x = 0.4, 
-            y = 1.15),
-         margin = dict(
-            l = 25,
-            r = 25
-         ),
-         xaxis = dict(
-            tickangle = 90,
-            tickfont = dict(
-               size = 10
-            )
-         ),
-         paper_bgcolor = '#F2F8FD',
-         plot_bgcolor = '#F2F4F6'
-      )
+   filtered_df = df[df['Ticker'].isin(sector_dict[sect])]
+   grouped_df = filtered_df.groupby('Ticker').tail(1)[['Ticker', '{}'.format(indi)]].dropna()#choose the latest data depends of indicator and drop rows with nan value
+   grouped_df = grouped_df.sort_values('{}'.format(indi))
+   trace_bar = go.Bar(
+      x = grouped_df['Ticker'],
+      y = grouped_df['{}'.format(indi)],
+      hovertext = grouped_df.index,#That show date of used data to plot bar
+      showlegend = False,
+      marker_color = '#FF851B'#Color of Bars
+   )
+   trace_line = go.Scatter(
+      x = [grouped_df['Ticker'][-1], grouped_df['Ticker'][0]],
+      y = [grouped_df['{}'.format(indi)].mean(), grouped_df['{}'.format(indi)].mean()],
+      mode = 'lines',
+      name = 'Średnia',
+      line = dict(color = '#111111', width = 3)
+   )
+   layout = dict(
+      title = "{}".format(indi),
+      legend = dict(
+         x = 0.4, 
+         y = 1.15),
+      margin = dict(
+         l = 40,
+         r = 20
+      ),
+      xaxis = dict(
+         tickangle = 90,
+         tickfont = dict(
+            size = 10
+         )
+      ),
+      paper_bgcolor = '#F2F8FD',
+      plot_bgcolor = '#F2F4F6'
+   )
 
-      return {
-         'data': [trace_bar, trace_line],
-         'layout': layout
-      }
-   finally:
-      lock.release()
-
+   return {
+      'data': [trace_bar, trace_line],
+      'layout': layout
+   }
 
 
 @app.callback(
@@ -411,7 +420,6 @@ def update_graph(indicators, sect):
    else:
       width = 12
       xl = 6
-
    for indi in indicators:
       graphs.append(dbc.Col(
          dcc.Graph(
@@ -424,41 +432,42 @@ def update_graph(indicators, sect):
    )
    return graphs
 
-
+@app.callback(
+   Output('table', 'data'),
+   [Input('table-date', 'value')]
+)
+def update_table_data(date):
+   df2 = pd.read_csv(r'https://raw.githubusercontent.com/PerczynskiAdam/Value-investing-dash-app/master/Indi_db/truncated_db.csv')
+   df2 = df2[df2['Data'] == date].dropna()
+   return df2.to_dict('records')
 
 #Stock Tab
 #function creating figure in stock tab
 def create_fig2(ticker, indi):
-   try:
-      lock.acquire(True)
-      data = c.execute("SELECT * FROM indis WHERE Ticker =?", (ticker,))
-      names = [description[0] for description in c.description]
-      df = pd.DataFrame(data, columns = names).set_index('Data', drop = True)
-      trace_sca = go.Scatter(
-         x = df.index,
-         y = df['{}'.format(indi)],
-         line_color = '#FF851B',
-         mode = 'lines'
+   filtered_df = df[df['Ticker'] == ticker]
+   trace_sca = go.Scatter(
+      x = filtered_df.index,
+      y = filtered_df['{}'.format(indi)],
+      line_color = '#FF851B',
+      mode = 'lines'
+   )
+   layout = dict(
+      title = '{} spółki: {}'.format(indi, ticker),
+      paper_bgcolor = '#F2F8FD',
+      plot_bgcolor = '#F2F4F6',
+      xaxis = dict(
+         showgrid = False,
+         tickangle = 45
+      ),
+      margin = dict(
+         l = 40,
+         r = 20
       )
-      layout = dict(
-         title = '{} spółki: {}'.format(indi, ticker),
-         paper_bgcolor = '#F2F8FD',
-         plot_bgcolor = '#F2F4F6',
-         xaxis = dict(
-            showgrid = False,
-            tickangle = 45
-         ),
-         margin = dict(
-            l = 25,
-            r = 25
-         )
-      )
-      return {
-         'data': [trace_sca],
-         'layout': layout
-      }
-   finally:
-      lock.release()
+   )
+   return {
+      'data': [trace_sca],
+      'layout': layout
+   }
 
 @app.callback(
    Output('container-tab2', 'children'),
@@ -483,8 +492,8 @@ def disp_graph_tab2(n_clicks, children):
                'type': 'dynamic-dropdown-tab2',
                'index': n_clicks
             },
-            options = [{'label':i, 'value':i} for i in get_indi_opt()],
-            value = 'Cena / Wartość księgowa'
+            options = [{'label':i, 'value':i} for i in df.columns[1:]],
+            value = df.columns[5]
          )
       ], width = 12, xl = 6
    )
