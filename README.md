@@ -9,10 +9,10 @@ https://gpw-value-app.herokuapp.com/
    The next step will be to check how change the prize of companies that had good valuation in the past. 
 
 # Technologies
-*  Dash - version 1.11.0
-*  Dash-bootstrap-components - version 0.10.0
-*  Dash-table - version 4.6.2
-*  Python - version 3.8.2
+1.  Dash - version 1.11.0
+2.  Dash-bootstrap-components - version 0.10.0
+3.  Dash-table - version 4.6.2
+4.  Python - version 3.8.2
   * Beatiful Soap 4
   * Request
   * Plotly
@@ -21,7 +21,7 @@ https://gpw-value-app.herokuapp.com/
   * Re
   * Glob
   * Functools (reduce)
-*  CSS/HTML
+5.  CSS/HTML
 
 # Setup
 To run this project create virtual environment, install dependencies from requirements.txt file and run code from app.py file
