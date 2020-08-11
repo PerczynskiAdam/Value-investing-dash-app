@@ -1,5 +1,5 @@
 # GPW value investing app
-Visualization app created to automate stocks value analyzes
+Visualization app created to automate stocks value analyzes. Data used in this app was scraped from the websites using Beautiful Soap 4. Gathered data was transformed with ETL methods in Python.
 https://gpw-value-app.herokuapp.com/
 
 # General info
