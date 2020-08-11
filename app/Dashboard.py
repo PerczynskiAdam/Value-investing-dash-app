@@ -246,6 +246,14 @@ app.layout = html.Div([
 ############################## Content of Tab-1
 #Map chart
 def create_map(scope):
+   """
+   Function creates Choropleth mapchart
+   
+   Args:
+      scope (String corresponds to area of map to plot)
+   Returns:
+      Display map for the choosen scope from dcc Dropdown
+   """
    fig = go.Figure()
    fig.add_trace(go.Choropleth(
       locations = df_map['Code'],
@@ -276,10 +284,23 @@ def create_map(scope):
 )
 
 def update_scope(scope):
+   """
+   Function serves a callback that passes a scope variable to create_map function
+   """
    return create_map(scope)
 
 #Gdp line chart
 def create_pkb_linechart(country):
+   """
+   Fucntion creates gdp line chart for choosen country
+
+   Args:
+      country (String with name of country)
+
+   Returns:
+      GDP line chart for country choosen by clicking at Choropleth map
+      If country name not in dataframe function return empty graph objects
+   """
    if country not in df_map.index.unique():
       return {}
    else:
@@ -313,6 +334,9 @@ def create_pkb_linechart(country):
 )
 
 def update_pkb_line_chart(clickData):
+   """
+   Function serves a callback that passes a clickData value as a variable to pkb line chart
+   """
    if clickData is None:
       return create_pkb_linechart(country = 'Poland')
    else:
@@ -321,6 +345,16 @@ def update_pkb_line_chart(clickData):
 
 # Stock market index line chart
 def create_ind_linechart(country):
+      """
+   Fucntion creates stock index line chart for choosen country
+
+   Args:
+      country (String with name of country)
+
+   Returns:
+      GDP line chart for country choosen by clicking at Choropleth map
+      If country name not in dataframe function return empty graph objects
+   """
       if country not in df_ind['Country'].unique():
          return {}
       else:
@@ -353,6 +387,9 @@ def create_ind_linechart(country):
 )
 
 def update_ind_line_chart(clickData):
+   """
+   Function serves a callback that passes a clickData value as a variable to index line chart
+   """
    if clickData is None:
       return create_ind_linechart(country = 'Poland')
    else:
@@ -361,8 +398,16 @@ def update_ind_line_chart(clickData):
 ########################
 
 #Branza tab
-#function creating fig in branza tab
 def create_fig(indi, sect):
+   """
+   Function creates Bar chart
+   
+   Args:
+      indi (String that corresponds to choosen indicator)
+      sect (String that corresponds to choosen sector of GPW stocks)
+   Returns:
+      Stocks bar chart for choosen gpw sectors shows values of choosen indicator
+   """
    filtered_df = df[df['Ticker'].isin(sector_dict[sect])]
    grouped_df = filtered_df.groupby('Ticker').tail(1)[['Ticker', '{}'.format(indi)]].dropna()#choose the latest data depends of indicator and drop rows with nan value
    grouped_df = grouped_df.sort_values('{}'.format(indi))
@@ -406,13 +451,16 @@ def create_fig(indi, sect):
 
 
 @app.callback(
-   Output('container-tab1', 'children'),#where and what to change
+   Output('container-tab1', 'children'),
    [Input('dynamic-indi', 'value'),
-   Input('sector', 'value')]#where and how its starting
+   Input('sector', 'value')]
 )
 
 #function to support callback
 def update_graph(indicators, sect):
+   """
+   Function serves a callback that update graph objects depends on choosen sector and indicator
+   """
    graphs = []
    if len(indicators) < 2:
       width = 12
@@ -437,6 +485,9 @@ def update_graph(indicators, sect):
    [Input('table-date', 'value')]
 )
 def update_table_data(date):
+   """
+   Function serves a callback that passes date to filter dataset 
+   """
    df2 = pd.read_csv(r'https://raw.githubusercontent.com/PerczynskiAdam/Value-investing-dash-app/master/Indi_db/truncated_db.csv')
    df2 = df2[df2['Data'] == date].dropna()
    return df2.to_dict('records')
@@ -444,6 +495,15 @@ def update_table_data(date):
 #Stock Tab
 #function creating figure in stock tab
 def create_fig2(ticker, indi):
+   """
+   Function creates historical indicator Bar chart for each stock
+   
+   Args:
+      indi (String that corresponds to choosen indicator)
+      ticker (String that corrseponds to chooosen gpw stock)
+   Returns:
+      Display historical bar chart
+   """
    filtered_df = df[df['Ticker'] == ticker]
    trace_sca = go.Scatter(
       x = filtered_df.index,
@@ -476,6 +536,15 @@ def create_fig2(ticker, indi):
 )
 
 def disp_graph_tab2(n_clicks, children):
+   """
+   Function serves a callback that passes a scope variable to create_map function
+
+   Args:
+      n_clicks (It's a number increasing by 1 every time button is clicked)
+      children (Dash component populating when all the data is passes)
+   Returns
+      Returns a graph objects
+   """
    new_element = dbc.Col(
       children = [
          dcc.Graph(
@@ -507,6 +576,9 @@ def disp_graph_tab2(n_clicks, children):
 )
 
 def disp_output(ticker, indi):
+   """
+   Function serves a callback that passes ticker and indicator to create_fig2 function
+   """
    return create_fig2(ticker, indi)
 
 if __name__ == '__main__':
