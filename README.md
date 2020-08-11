@@ -3,9 +3,10 @@ Visualization app created to automate stocks value analyzes
 https://gpw-value-app.herokuapp.com/
 
 # General info
-The goal of this project was to interactive visualize the data for GPW stocks.
-Based on this solution we can filter stocks to answer a question: Can we find stocks on polish stock market that have good valuation according to buisness fundamentals?
-The next step will be to check how change the prize of companies that had good valuation in the past. 
+   The goal of this project was to interactive visualize the data for GPW stocks.  
+   Based on this solution we can filter stocks to answer a question:  
+   Can we find stocks on polish stock market that have good valuation according to buisness fundamentals?  
+   The next step will be to check how change the prize of companies that had good valuation in the past. 
 
 # Technologies
 *  Dash - version 1.11.0
