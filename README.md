@@ -27,7 +27,8 @@ https://gpw-value-app.herokuapp.com/
 To run this project create virtual environment, install dependencies from requirements.txt file and run code from Dashboard.py file
 
 # Features
-The dashboard_tables.py give possibility to answer questions:  
+The Dashboard.py gives possibility to dynamically visualize macroeceonomics data for Europe and stocks data for polish stocks market (GPW)  
+The dashboard_tables.py gives possibility to answer questions:  
 1. Which stocks are well valuated according to buisness fundamentals like Prize to Earning ratio and Return on Equity ratio?  
 2. Is companies well valuated in the past gave profits?
 
