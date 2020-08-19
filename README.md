@@ -44,7 +44,7 @@ Those stocks can be taken for further analysis.
 
 
 To answer second question we choose end date with dropdown.
-Based on this date, dashboard is loading stocks data taken from: [I'm an inline-style link](https://www.stooq.com) and it's calculating prize change between start and end date.  
+Based on this date, dashboard is loading stocks data taken from: [Website with stocks prizes](https://stooq.pl/t/?i=513) and it's calculating prize change between start and end date.  
 Finally it's calculating average profit/loss for tickers  
 ![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/result.png "Prize change over time for stocks and average profit/loss for group of stocks")  
 
