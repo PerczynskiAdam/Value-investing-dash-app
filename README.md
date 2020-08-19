@@ -39,7 +39,12 @@ By providing values with inputs:
 
 We filter dataset on backend and app is displaying results:  
 ![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/filtered_data.png "Filtered table on backend")  
-Based on this we see stocks tickers which corresponds to defined inputs  
-Those stocks can be taken for further analysis  
+Based on this we see stocks tickers which corresponds to defined inputs.  
+Those stocks can be taken for further analysis.  
 
+
+To answer second question we choose end date with dropdown.
+Based on this date, dashboard is loading stocks data taken from: [I'm an inline-style link](https://www.stooq.com) and it's calculating prize change between start and end date.  
+Finally it's calculating average profit/loss for tickers  
+![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/result.png "Prize change over time for stocks and average profit/loss for group of stocks")  
 
