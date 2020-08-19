@@ -33,6 +33,13 @@ The dashboard_tables.py give possibility to answer questions:
 
 
 To answer first question we can filter dataset with p/e and roe values.  
-By providing these values we filter dataset on backend and app is displaying results:  
-![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/inputs.png "Logo Title Text 1")
+By providing values with inputs:  
+![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/inputs.png "Inputs to filter data")  
+
+
+We filter dataset on backend and app is displaying results:  
+![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/filtered_data.png "Filtered table on backend")  
+Based on this we see stocks tickers which corresponds to defined inputs  
+Those stocks can be taken for further analysis  
+
 
