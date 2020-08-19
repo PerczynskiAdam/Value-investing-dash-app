@@ -24,4 +24,15 @@ https://gpw-value-app.herokuapp.com/
 5.  CSS/HTML
 
 # Setup
-To run this project create virtual environment, install dependencies from requirements.txt file and run code from app.py file
+To run this project create virtual environment, install dependencies from requirements.txt file and run code from Dashboard.py file
+
+# Features
+The dashboard_tables.py give possibility to answer questions:  
+1. Which stocks are well valuated according to buisness fundamentals like Prize to Earning ratio and Return on Equity ratio?  
+2. Is companies well valuated in the past gave profits?
+
+
+To answer first question we can filter dataset with p/e and roe values.  
+By providing these values we filter dataset on backend and app is displaying results:  
+![alt text](https://github.com/PerczynskiAdam/Value-investing-dash-app/blob/master/images/inputs.png "Logo Title Text 1")
+
