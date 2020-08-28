@@ -105,6 +105,7 @@ app.layout = html.Div([
          dash_table.DataTable(
             id = "diff-table",
             page_size = 10,
+            sort_action='native',
             style_header={ 'border': '1px solid black' },
             style_cell={ 'border': '1px solid grey' }
          ), width ={"size": 10, "offset": 1}
@@ -283,6 +284,12 @@ def update_diff_table(startdata, enddata):
    diff_data["Zmiana %"] = (diff_data["Zamkniecie koniec"].values - diff_data["Zamkniecie początek"].values)/diff_data["Zamkniecie początek"].values*100
    #rounding all numeric values to 2 decimals
    diff_data = diff_data.round(2)
+   #import sectors data
+   sectors = pd.read_csv(r'C:\Users\AdamPer\Desktop\Python\Dash\Data\gpw_sectors.csv')
+   #merge data
+   diff_data = pd.merge(diff_data, sectors, on = "Ticker", how = "inner")
+   #chaning order of columns
+   diff_data = diff_data[["Ticker", "Sektor", "Zamkniecie początek", "Zamkniecie koniec", "Zmiana %"]]
    #setting columns to variable for dash_table
    columns = [{"name": i, "id": i} for i in diff_data.columns]
    return (diff_data.to_dict("records"), columns)
